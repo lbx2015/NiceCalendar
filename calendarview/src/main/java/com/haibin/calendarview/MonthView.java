@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 /**
  * 月视图基础控件,请使用 MonthView替换，没有任何不同，只是规范命名
@@ -168,6 +169,25 @@ public abstract class MonthView extends BaseView {
         initCalendar();
     }
 
+    private int getRowsNumber() {
+        int numberRows = 5;
+        java.util.Calendar myCal = new GregorianCalendar(mYear, mMonth - 1, 1);
+        // Get the number of days in that month
+        int daysInMonth = myCal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH);
+        myCal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+        int dayOfWeek = myCal.get(java.util.Calendar.DAY_OF_WEEK);
+        if (daysInMonth == 31) {
+            if (dayOfWeek > 5) {
+                numberRows = 6;
+            }
+        } else if (daysInMonth == 30) {
+            if (dayOfWeek > 6) {
+                numberRows = 6;
+            }
+        }
+        return numberRows;
+    }
+
     /**
      * 初始化日历
      */
@@ -186,7 +206,7 @@ public abstract class MonthView extends BaseView {
         int preYear, preMonth;
         int nextYear, nextMonth;
 
-        int size = 42;
+        int size = getRowsNumber() * 7;
 
         int preMonthDaysCount;
         if (mMonth == 1) {//如果是1月
@@ -236,7 +256,7 @@ public abstract class MonthView extends BaseView {
             LunarCalendar.setupLunarCalendar(calendarDate);
             mItems.add(calendarDate);
         }
-        mLineCount = mItems.size() / 7;
+        mLineCount = getRowsNumber();
         if (mDelegate.mSchemeDate != null) {
             for (Calendar a : mItems) {
                 for (Calendar d : mDelegate.mSchemeDate) {
