@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.lang.reflect.Constructor;
+import java.util.GregorianCalendar;
 
 
 /**
@@ -32,10 +33,10 @@ import java.lang.reflect.Constructor;
 @SuppressWarnings("deprecation")
 public class MonthViewPager extends ViewPager {
 
-    private int mMonthCount;
-    private CustomCalendarViewDelegate mDelegate;
     CalendarLayout mParentLayout;
     WeekViewPager mWeekPager;
+    private int mMonthCount;
+    private CustomCalendarViewDelegate mDelegate;
 
     public MonthViewPager(Context context) {
         this(context, null);
@@ -54,7 +55,7 @@ public class MonthViewPager extends ViewPager {
         this.mDelegate = delegate;
         init();
     }
-
+    Calendar calendar;
     private void init() {
         mMonthCount = 12 * (mDelegate.getMaxYear() - mDelegate.getMinYear())
                 - mDelegate.getMinYearMonth() + 1 +
@@ -68,7 +69,7 @@ public class MonthViewPager extends ViewPager {
 
             @Override
             public void onPageSelected(int position) {
-                Calendar calendar = new Calendar();
+                calendar = new Calendar();
                 calendar.setYear((position + mDelegate.getMinYearMonth() - 1) / 12 + mDelegate.getMinYear());
                 calendar.setMonth((position + mDelegate.getMinYearMonth() - 1) % 12 + 1);
                 calendar.setDay(1);
@@ -207,7 +208,6 @@ public class MonthViewPager extends ViewPager {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
-
     /**
      * 日历卡月份Adapter
      */
@@ -263,7 +263,22 @@ public class MonthViewPager extends ViewPager {
      * @return 获取日历卡高度
      */
     private int getCardHeight() {
-        return 6 * mDelegate.getCalendarItemHeight();
+        int numberRows = 5;
+        java.util.Calendar myCal = new GregorianCalendar(calendar.getYear(), calendar.getMonth()-1, calendar.getDay());
+        // Get the number of days in that month
+        int daysInMonth = myCal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH); // 28
+        myCal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+        int dayOfWeek = myCal.get(java.util.Calendar.DAY_OF_WEEK);
+        if (daysInMonth == 31) {
+            if (dayOfWeek > 5) {
+                numberRows = 6;
+            }
+        } else if (daysInMonth == 30) {
+            if (dayOfWeek > 6) {
+                numberRows = 6;
+            }
+        }
+        return numberRows * mDelegate.getCalendarItemHeight();
     }
 
 }

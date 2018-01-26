@@ -2,7 +2,6 @@ package com.haibin.calendarviewproject.meizu;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 
 import com.haibin.calendarview.Calendar;
@@ -19,6 +18,8 @@ public class MeizuWeekView extends WeekView {
     private float mRadio;
     private int mPadding;
     private float mSchemeBaseLine;
+    private int mRadius;
+    private int mH;
 
     public MeizuWeekView(Context context) {
         super(context);
@@ -41,7 +42,24 @@ public class MeizuWeekView extends WeekView {
     }
 
     /**
+     * dp转px
      *
+     * @param context context
+     * @param dpValue dp
+     * @return px
+     */
+    private static int dipToPx(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    @Override
+    protected void onPreviewHook() {
+        mRadius = Math.min(mItemWidth, mItemHeight) / 5 * 2;
+        mH = dipToPx(getContext(), 2);
+    }
+
+    /**
      * @param canvas    canvas
      * @param calendar  日历日历calendar
      * @param x         日历Card x起点坐标
@@ -50,8 +68,12 @@ public class MeizuWeekView extends WeekView {
      */
     @Override
     protected boolean onDrawSelected(Canvas canvas, Calendar calendar, int x, boolean hasScheme) {
-        mSelectedPaint.setStyle(Paint.Style.FILL);
-        canvas.drawRect(x + mPadding, mPadding, x + mItemWidth - mPadding, mItemHeight - mPadding, mSelectedPaint);
+//        mSelectedPaint.setStyle(Paint.Style.FILL);
+//        canvas.drawRect(x + mPadding, mPadding, x + mItemWidth - mPadding, mItemHeight - mPadding, mSelectedPaint);
+//        return true;
+        int cx = x + mItemWidth / 2;
+        int cy = mItemHeight / 2;
+        canvas.drawCircle(cx, cy, mRadius, mSelectedPaint);
         return true;
     }
 
@@ -62,6 +84,12 @@ public class MeizuWeekView extends WeekView {
         canvas.drawCircle(x + mItemWidth - mPadding - mRadio / 2, mPadding + mRadio, mRadio, mSchemeBasicPaint);
 
         canvas.drawText(calendar.getScheme(), x + mItemWidth - mPadding - mRadio, mPadding + mSchemeBaseLine, mTextPaint);
+
+        int cx = x + mItemWidth / 2;
+        canvas.drawCircle(cx,
+                mItemHeight - (mH / 2) - mPadding,
+                mH,
+                mSchemeBasicPaint);
     }
 
     @Override
@@ -86,17 +114,5 @@ public class MeizuWeekView extends WeekView {
                     calendar.isCurrentDay() ? mCurDayLunarTextPaint :
                             calendar.isCurrentMonth() ? mCurMonthLunarTextPaint : mOtherMonthLunarTextPaint);
         }
-    }
-
-    /**
-     * dp转px
-     *
-     * @param context context
-     * @param dpValue dp
-     * @return px
-     */
-    private static int dipToPx(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
     }
 }

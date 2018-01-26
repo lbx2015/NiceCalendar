@@ -26,6 +26,9 @@ public class MeiZuMonthView extends MonthView {
     private float mRadio;
     private int mPadding;
     private float mSchemeBaseLine;
+    private int mRadius;
+
+    private int mH;
 
     public MeiZuMonthView(Context context) {
         super(context);
@@ -47,7 +50,27 @@ public class MeiZuMonthView extends MonthView {
     }
 
     /**
+     * dp转px
+     *
+     * @param context context
+     * @param dpValue dp
+     * @return px
+     */
+    private static int dipToPx(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    @Override
+    protected void onPreviewHook() {
+        mRadius = Math.min(mItemWidth, mItemHeight) / 5 * 2;
+        mSchemePaint.setStyle(Paint.Style.STROKE);
+        mH = dipToPx(getContext(), 2);
+    }
+
+    /**
      * 绘制选中的日子
+     *
      * @param canvas    canvas
      * @param calendar  日历日历calendar
      * @param x         日历Card x起点坐标
@@ -57,13 +80,19 @@ public class MeiZuMonthView extends MonthView {
      */
     @Override
     protected boolean onDrawSelected(Canvas canvas, Calendar calendar, int x, int y, boolean hasScheme) {
-        mSelectedPaint.setStyle(Paint.Style.FILL);
-        canvas.drawRect(x + mPadding, y + mPadding, x + mItemWidth - mPadding, y + mItemHeight - mPadding, mSelectedPaint);
+//        mSelectedPaint.setStyle(Paint.Style.FILL);
+//        canvas.drawRect(x + mPadding, y + mPadding, x + mItemWidth - mPadding, y + mItemHeight - mPadding, mSelectedPaint);
+//        return true;
+
+        int cx = x + mItemWidth / 2;
+        int cy = y + mItemHeight / 2;
+        canvas.drawCircle(cx, cy, mRadius, mSelectedPaint);
         return true;
     }
 
     /**
      * 绘制标记的事件日子
+     *
      * @param canvas   canvas
      * @param calendar 日历calendar
      * @param x        日历Card x起点坐标
@@ -76,10 +105,17 @@ public class MeiZuMonthView extends MonthView {
         canvas.drawCircle(x + mItemWidth - mPadding - mRadio / 2, y + mPadding + mRadio, mRadio, mSchemeBasicPaint);
 
         canvas.drawText(calendar.getScheme(), x + mItemWidth - mPadding - mRadio, y + mPadding + mSchemeBaseLine, mTextPaint);
+
+        int cx = x + mItemWidth / 2;
+        canvas.drawCircle(cx,
+                y + mItemHeight - (mH / 2) - mPadding,
+                mH,
+                mSchemeBasicPaint);
     }
 
     /**
      * 绘制文本
+     *
      * @param canvas     canvas
      * @param calendar   日历calendar
      * @param x          日历Card x起点坐标
@@ -109,17 +145,5 @@ public class MeiZuMonthView extends MonthView {
                     calendar.isCurrentDay() ? mCurDayLunarTextPaint :
                             calendar.isCurrentMonth() ? mCurMonthLunarTextPaint : mOtherMonthLunarTextPaint);
         }
-    }
-
-    /**
-     * dp转px
-     *
-     * @param context context
-     * @param dpValue dp
-     * @return px
-     */
-    private static int dipToPx(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
     }
 }
